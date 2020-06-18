@@ -10,21 +10,30 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import com.ternaryop.photoshelf.activity.ImageViewerActivityStarter
 import com.ternaryop.photoshelf.activity.TagPhotoBrowserData
 import com.ternaryop.photoshelf.api.post.TagInfo
-import com.ternaryop.photoshelf.tagnavigator.R
 import com.ternaryop.photoshelf.tagnavigator.adapter.TagNavigatorAdapter
 import com.ternaryop.photoshelf.tagnavigator.adapter.TagNavigatorListener
-import kotlinx.android.synthetic.main.fragment_tag_list.searchView1
-import kotlinx.android.synthetic.main.fragment_tag_list.tag_list
+import com.ternaryop.photoshelf.tagnavigator.databinding.FragmentTagListBinding
 
 class TagListFragment(
     private val imageViewerActivityStarter: ImageViewerActivityStarter
 ) : Fragment(), TagNavigatorListener {
     private var blogName = ""
+    private var _binding: FragmentTagListBinding? = null
+    private val binding get() = _binding!!
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? = inflater.inflate(R.layout.fragment_tag_list, container, false)
+    ): View? {
+        _binding = FragmentTagListBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -37,13 +46,13 @@ class TagListFragment(
             blogName,
             this)
 
-        tag_list.adapter = adapter
-        tag_list.setHasFixedSize(true)
-        tag_list.layoutManager = LinearLayoutManager(activity)
+        binding.tagList.adapter = adapter
+        binding.tagList.setHasFixedSize(true)
+        binding.tagList.layoutManager = LinearLayoutManager(activity)
 
         // start with list filled
         adapter.filter.filter("")
-        searchView1
+        binding.searchView1
             .setOnQueryTextListener(object : SearchView.OnQueryTextListener {
                 override fun onQueryTextSubmit(query: String): Boolean {
                     return false

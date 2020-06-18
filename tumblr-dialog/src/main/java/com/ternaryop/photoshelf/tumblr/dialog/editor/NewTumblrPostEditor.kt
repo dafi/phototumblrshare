@@ -14,6 +14,7 @@ import com.ternaryop.photoshelf.tumblr.dialog.PostEditorResult
 import com.ternaryop.photoshelf.tumblr.dialog.R
 import com.ternaryop.photoshelf.tumblr.dialog.blog.BlogList
 import com.ternaryop.photoshelf.tumblr.dialog.blog.OnFetchBlogsListener
+import com.ternaryop.photoshelf.tumblr.dialog.databinding.FragmentTumblrPostBinding
 import com.ternaryop.photoshelf.tumblr.dialog.editor.viewholder.TagsHolder
 import com.ternaryop.photoshelf.tumblr.dialog.editor.viewholder.TitleHolder
 import kotlinx.coroutines.CoroutineScope
@@ -36,7 +37,8 @@ class NewTumblrPostEditor(
         get() = job + Dispatchers.Main
 
     override fun setupUI(actionBar: ActionBar?, view: View) {
-        blogList = BlogList(view.context, view.findViewById(R.id.blog),
+        val binding = FragmentTumblrPostBinding.bind(view)
+        blogList = BlogList(view.context, binding.blog,
             object : BlogList.OnBlogItemSelectedListener() {
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, pos: Int, id: Long) {
                     tagsHolder.updateBlogName(blogList.selectedBlogName)
@@ -56,7 +58,7 @@ class NewTumblrPostEditor(
             override fun onErrorFetchBlog(blogList: BlogList, t: Throwable) = Unit
         }
 
-        view.findViewById<View>(R.id.refreshBlogList)
+        binding.refreshBlogList
             .setOnClickListener {
                 launch {
                     blogList.fetchBlogNames(fetchBlogsListener)

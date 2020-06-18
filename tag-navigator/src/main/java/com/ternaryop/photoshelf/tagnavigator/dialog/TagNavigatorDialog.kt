@@ -15,10 +15,7 @@ import com.ternaryop.photoshelf.api.post.toTagInfo
 import com.ternaryop.photoshelf.tagnavigator.R
 import com.ternaryop.photoshelf.tagnavigator.adapter.TagNavigatorAdapter
 import com.ternaryop.photoshelf.tagnavigator.adapter.TagNavigatorListener
-import kotlinx.android.synthetic.main.dialog_tag_navigator.distinct_tag_count
-import kotlinx.android.synthetic.main.dialog_tag_navigator.distinct_tag_title
-import kotlinx.android.synthetic.main.dialog_tag_navigator.sort_tag
-import kotlinx.android.synthetic.main.dialog_tag_navigator.tag_list
+import com.ternaryop.photoshelf.tagnavigator.databinding.DialogTagNavigatorBinding
 
 /**
  * Created by dave on 17/05/15.
@@ -32,10 +29,17 @@ private const val PREF_NAME_TAG_SORT = "tagNavigatorSort"
 
 class TagNavigatorDialog : BottomSheetDialogFragment(), TagNavigatorListener {
     private lateinit var adapter: TagNavigatorAdapter
+    private var _binding: DialogTagNavigatorBinding? = null
+    private val binding get() = _binding!!
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        return inflater
-            .inflate(R.layout.dialog_tag_navigator, container, false)
+        _binding = DialogTagNavigatorBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -45,16 +49,16 @@ class TagNavigatorDialog : BottomSheetDialogFragment(), TagNavigatorListener {
             arguments?.getStringArrayList(ARG_TAG_LIST)?.toTagInfo() ?: emptyList(),
             "",
             this)
-        tag_list.setHasFixedSize(true)
-        tag_list.layoutManager = LinearLayoutManager(activity)
-        tag_list.adapter = adapter
+        binding.tagList.setHasFixedSize(true)
+        binding.tagList.layoutManager = LinearLayoutManager(activity)
+        binding.tagList.adapter = adapter
 
-        distinct_tag_count.text = String.format("%d", adapter.itemCount)
-        distinct_tag_title.text = resources.getString(R.string.tag_navigator_distinct_title)
+        binding.distinctTagCount.text = String.format("%d", adapter.itemCount)
+        binding.distinctTagTitle.text = resources.getString(R.string.tag_navigator_distinct_title)
 
         val preferences = PreferenceManager.getDefaultSharedPreferences(activity)
         changeSortType(preferences.getInt(PREF_NAME_TAG_SORT, SORT_TAG_NAME))
-        sort_tag.setOnClickListener { v ->
+        binding.sortTag.setOnClickListener { v ->
             when (v.id) {
                 R.id.sort_tag -> {
                     var sortType = preferences.getInt(PREF_NAME_TAG_SORT, SORT_TAG_NAME)
@@ -77,11 +81,11 @@ class TagNavigatorDialog : BottomSheetDialogFragment(), TagNavigatorListener {
     private fun changeSortType(sortType: Int) {
         when (sortType) {
             SORT_TAG_NAME -> {
-                sort_tag.setText(R.string.sort_by_count)
+                binding.sortTag.setText(R.string.sort_by_count)
                 adapter.sortByTagName()
             }
             SORT_TAG_COUNT -> {
-                sort_tag.setText(R.string.sort_by_name)
+                binding.sortTag.setText(R.string.sort_by_name)
                 adapter.sortByTagCount()
             }
         }

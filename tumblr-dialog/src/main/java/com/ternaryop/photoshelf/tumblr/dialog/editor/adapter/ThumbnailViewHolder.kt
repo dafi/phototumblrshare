@@ -6,10 +6,10 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.api.load
 import coil.size.Scale
 import com.ternaryop.photoshelf.tumblr.dialog.R
-import com.ternaryop.widget.CheckableImageView
+import com.ternaryop.photoshelf.tumblr.dialog.databinding.ThumbnailBinding
 
 class ThumbnailViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-    private val thumbImage = itemView.findViewById<View>(R.id.thumbnail_image) as CheckableImageView
+    private val thumbImage = ThumbnailBinding.bind(itemView).thumbnailImage
 
     fun bindModel(url: String, thumbnailSize: Int) {
         displayImage(url, thumbnailSize)

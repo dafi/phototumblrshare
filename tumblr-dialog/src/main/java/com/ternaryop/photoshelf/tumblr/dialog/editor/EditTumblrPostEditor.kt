@@ -8,6 +8,7 @@ import com.ternaryop.photoshelf.mru.adapter.MRUHolder
 import com.ternaryop.photoshelf.tumblr.dialog.PostEditorData
 import com.ternaryop.photoshelf.tumblr.dialog.PostEditorResult
 import com.ternaryop.photoshelf.tumblr.dialog.R
+import com.ternaryop.photoshelf.tumblr.dialog.databinding.FragmentTumblrPostBinding
 import com.ternaryop.photoshelf.tumblr.dialog.editor.viewholder.TagsHolder
 import com.ternaryop.photoshelf.tumblr.dialog.editor.viewholder.TitleHolder
 
@@ -20,8 +21,10 @@ class EditTumblrPostEditor(
     override fun setupUI(actionBar: ActionBar?, view: View) {
         actionBar?.setTitle(R.string.edit_post_title)
 
-        view.findViewById<View>(R.id.blog).visibility = View.GONE
-        view.findViewById<View>(R.id.refreshBlogList).visibility = View.GONE
+        FragmentTumblrPostBinding.bind(view).apply {
+            blog.visibility = View.GONE
+            refreshBlogList.visibility = View.GONE
+        }
     }
 
     override fun onPrepareMenu(menu: Menu) {

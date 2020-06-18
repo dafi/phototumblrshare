@@ -1,5 +1,11 @@
 apply from: "$rootProject.projectDir/shared-android-library.gradle"
 
+android {
+    buildFeatures {
+        viewBinding true
+    }
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 

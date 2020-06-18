@@ -6,6 +6,7 @@ import android.app.Dialog
 import android.app.TimePickerDialog
 import android.os.Bundle
 import android.text.format.DateUtils
+import android.view.LayoutInflater
 import android.view.View
 import android.widget.Button
 import android.widget.DatePicker
@@ -14,6 +15,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
+import com.ternaryop.photoshelf.tumblr.dialog.databinding.DialogSchedulePostBinding
 import com.ternaryop.tumblr.TumblrPost
 import com.ternaryop.utils.date.dayOfMonth
 import com.ternaryop.utils.date.hourOfDay
@@ -29,22 +31,21 @@ class SchedulePostDialog : DialogFragment(), View.OnClickListener,
 
     private lateinit var post: TumblrPost
     private lateinit var scheduleDateTime: Calendar
-    private lateinit var chooseDateButton: Button
-    private lateinit var chooseTimeButton: Button
     private lateinit var timeFormat: SimpleDateFormat
     private lateinit var scheduleButton: Button
 
+    private lateinit var binding: DialogSchedulePostBinding
+
     @SuppressLint("InflateParams") // for dialogs passing null for root is valid, ignore the warning
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val view = requireActivity().layoutInflater.inflate(R.layout.dialog_schedule_post, null)
-
+        binding = DialogSchedulePostBinding.inflate(LayoutInflater.from(context))
         post = checkNotNull(arguments?.getSerializable(ARG_POST) as? TumblrPost)
         scheduleDateTime = checkNotNull(arguments?.getSerializable(ARG_SCHEDULE_DATE) as? Calendar)
 
-        setupUI(view)
+        setupUI()
 
         val dialog = AlertDialog.Builder(requireContext())
-            .setView(view)
+            .setView(binding.root)
             .setNegativeButton(android.R.string.cancel) { _, _ -> dismiss() }
             .setPositiveButton(R.string.schedule_title) { _, _ -> }
             .create()
@@ -58,17 +59,15 @@ class SchedulePostDialog : DialogFragment(), View.OnClickListener,
         return dialog
     }
 
-    private fun setupUI(view: View) {
+    private fun setupUI() {
         // init date
-        chooseDateButton = view.findViewById(R.id.choose_date_button)
-        chooseDateButton.setOnClickListener(this)
+        binding.chooseDateButton.setOnClickListener(this)
         updateDateButton()
 
         // init time
-        chooseTimeButton = view.findViewById(R.id.choose_time_button)
         timeFormat = SimpleDateFormat("HH:mm", Locale.US)
         updateTimeButton(scheduleDateTime)
-        chooseTimeButton.setOnClickListener(this)
+        binding.chooseTimeButton.setOnClickListener(this)
     }
 
     override fun onClick(v: View) {
@@ -127,11 +126,11 @@ class SchedulePostDialog : DialogFragment(), View.OnClickListener,
             DateUtils.DAY_IN_MILLIS,
             DateUtils.FORMAT_SHOW_DATE)
 
-        chooseDateButton.text = timeString
+        binding.chooseDateButton.text = timeString
     }
 
     private fun updateTimeButton(scheduleDateTime: Calendar) {
-        chooseTimeButton.text = timeFormat.format(scheduleDateTime.time)
+        binding.chooseTimeButton.text = timeFormat.format(scheduleDateTime.time)
     }
 
     companion object {
