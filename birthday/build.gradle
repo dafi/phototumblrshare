@@ -1,7 +1,15 @@
 apply from: "$rootProject.projectDir/shared-android-library.gradle"
 
+android {
+    buildFeatures {
+        viewBinding true
+    }
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+
+    implementation "androidx.cardview:cardview:${rootProject.ext.androidXCardViewLibVersion}"
 
     implementation "com.ternaryop.photoshelf:api-coroutines:${rootProject.ext.ternaryOpApiCoroutinesLibVersion}"
 

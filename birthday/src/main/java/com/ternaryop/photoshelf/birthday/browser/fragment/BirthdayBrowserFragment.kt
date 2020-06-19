@@ -13,11 +13,9 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.AdapterView
 import android.widget.ArrayAdapter
-import android.widget.SearchView
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import com.ternaryop.photoshelf.activity.ImageViewerActivityStarter
 import com.ternaryop.photoshelf.activity.TagPhotoBrowserData
 import com.ternaryop.photoshelf.api.birthday.Birthday
@@ -25,6 +23,7 @@ import com.ternaryop.photoshelf.birthday.R
 import com.ternaryop.photoshelf.birthday.browser.adapter.BirthdayAdapter
 import com.ternaryop.photoshelf.birthday.browser.adapter.BirthdayShowFlags
 import com.ternaryop.photoshelf.birthday.browser.adapter.nullDate
+import com.ternaryop.photoshelf.birthday.databinding.FragmentBirthdayBrowserBinding
 import com.ternaryop.photoshelf.fragment.AbsPhotoShelfFragment
 import com.ternaryop.photoshelf.lifecycle.EventObserver
 import com.ternaryop.photoshelf.lifecycle.Status
@@ -54,6 +53,9 @@ class BirthdayBrowserFragment(
     private val actionModeMenuId: Int
         get() = R.menu.birthday_browser_context
     private val viewModel: BirthdayBrowserViewModel by viewModel()
+    private var _binding: FragmentBirthdayBrowserBinding? = null
+    private val binding: FragmentBirthdayBrowserBinding
+        get() = _binding!!
 
     enum class ItemAction {
         MARK_AS_IGNORED,
@@ -61,13 +63,20 @@ class BirthdayBrowserFragment(
     }
 
     private lateinit var adapter: BirthdayAdapter
-    private lateinit var recyclerView: RecyclerView
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? = inflater.inflate(R.layout.fragment_birthday_browser, container, false)
+    ): View? {
+        _binding = FragmentBirthdayBrowserBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -75,17 +84,14 @@ class BirthdayBrowserFragment(
         adapter = BirthdayAdapter(requireContext(), requireBlogName)
         adapter.onClickListener = this
         adapter.onLongClickListener = this
-        recyclerView = view.findViewById(R.id.list)
-        recyclerView.setHasFixedSize(true)
-        recyclerView.layoutManager = LinearLayoutManager(requireContext())
-        recyclerView.adapter = adapter
+        binding.list.setHasFixedSize(true)
+        binding.list.layoutManager = LinearLayoutManager(requireContext())
+        binding.list.adapter = adapter
 
-        recyclerView.addOnScrollListener(OnPagingScrollListener(this))
-
-        val searchView = view.findViewById<SearchView>(R.id.searchView1)
+        binding.list.addOnScrollListener(OnPagingScrollListener(this))
 
         // Set up the query listener that executes the search
-        searchView.setOnQueryTextListener(DebouncingQueryTextListener(DEBOUNCE_TIMEOUT_MILLIS) { pattern ->
+        binding.searchView1.setOnQueryTextListener(DebouncingQueryTextListener(DEBOUNCE_TIMEOUT_MILLIS) { pattern ->
             // this is called after rotation so we ensure the find runs only when the pattern changes
             if (adapter.pattern != pattern) {
                 adapter.pattern = pattern
@@ -412,7 +418,7 @@ class BirthdayBrowserFragment(
         }
         val dayPos = adapter.findDayPosition(Calendar.getInstance().dayOfMonth)
         if (dayPos >= 0) {
-            recyclerView.scrollItemOnTopByPosition(dayPos)
+            binding.list.scrollItemOnTopByPosition(dayPos)
         }
     }
 

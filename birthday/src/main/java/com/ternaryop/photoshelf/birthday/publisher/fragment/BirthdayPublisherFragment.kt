@@ -12,7 +12,6 @@ import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.recyclerview.widget.RecyclerView
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import com.ternaryop.photoshelf.EXTRA_POST
 import com.ternaryop.photoshelf.activity.ImageViewerActivityStarter
@@ -20,6 +19,7 @@ import com.ternaryop.photoshelf.activity.TagPhotoBrowserData
 import com.ternaryop.photoshelf.adapter.OnPhotoBrowseClickMultiChoice
 import com.ternaryop.photoshelf.api.birthday.Birthday
 import com.ternaryop.photoshelf.birthday.R
+import com.ternaryop.photoshelf.birthday.databinding.FragmentBirthdayPublisherBinding
 import com.ternaryop.photoshelf.birthday.publisher.adapter.BirthdayPhotoAdapter
 import com.ternaryop.photoshelf.birthday.service.BirthdayPublisherService
 import com.ternaryop.photoshelf.fragment.AbsPhotoShelfFragment
@@ -28,7 +28,6 @@ import com.ternaryop.photoshelf.lifecycle.Status
 import com.ternaryop.tumblr.TumblrPhotoPost
 import com.ternaryop.utils.dialog.showErrorDialog
 import com.ternaryop.utils.recyclerview.AutofitGridLayoutManager
-import com.ternaryop.widget.WaitingResultSwipeRefreshLayout
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.Calendar
 import java.util.Locale
@@ -41,30 +40,41 @@ class BirthdayPublisherFragment(
     SwipeRefreshLayout.OnRefreshListener, OnPhotoBrowseClickMultiChoice, ActionMode.Callback {
 
     private lateinit var birthdayPhotoAdapter: BirthdayPhotoAdapter
-    private lateinit var swipeLayout: WaitingResultSwipeRefreshLayout
 
     private val viewModel: BirthdayPublisherViewModel by viewModel()
+
+    private var _binding: FragmentBirthdayPublisherBinding? = null
+    private val binding: FragmentBirthdayPublisherBinding
+        get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val rootView = inflater.inflate(R.layout.fragment_birthday_publisher, container, false)
+        _binding = FragmentBirthdayPublisherBinding.inflate(inflater, container, false)
+        return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        _binding = null
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         birthdayPhotoAdapter = BirthdayPhotoAdapter(requireContext())
         birthdayPhotoAdapter.onPhotoBrowseClick = this
 
         val layout = AutofitGridLayoutManager(requireContext(),
             resources.getDimension(R.dimen.grid_layout_thumb_width).toInt())
-        val gridView = rootView.findViewById<RecyclerView>(R.id.gridview)
-        gridView.adapter = birthdayPhotoAdapter
-        gridView.setHasFixedSize(true)
-        gridView.layoutManager = layout
+        binding.gridview.adapter = birthdayPhotoAdapter
+        binding.gridview.setHasFixedSize(true)
+        binding.gridview.layoutManager = layout
 
-        swipeLayout = rootView.findViewById(R.id.swipe_container)
-        swipeLayout.setOnRefreshListener(this)
-        swipeLayout.isRefreshing = true
+        binding.swipeContainer.setOnRefreshListener(this)
+        binding.swipeContainer.isRefreshing = true
         refresh()
 
         setHasOptionsMenu(true)
@@ -74,13 +84,11 @@ class BirthdayPublisherFragment(
                 is BirthdayPublisherModelResult.ListByDate -> onBirthdayList(result)
             }
         })
-
-        return rootView
     }
 
     private fun refresh() {
         // do not start another refresh if the current one is running
-        if (swipeLayout.isWaitingResult) {
+        if (binding.swipeContainer.isWaitingResult) {
             return
         }
         val count = birthdayPhotoAdapter.itemCount
@@ -88,7 +96,7 @@ class BirthdayPublisherFragment(
         birthdayPhotoAdapter.notifyItemRangeRemoved(0, count)
         val now = Calendar.getInstance(Locale.US)
         viewModel.listByDate(now, requireBlogName)
-        swipeLayout.setRefreshingAndWaitingResult(true)
+        binding.swipeContainer.setRefreshingAndWaitingResult(true)
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
@@ -230,7 +238,7 @@ class BirthdayPublisherFragment(
     }
 
     private fun onBirthdayList(result: BirthdayPublisherModelResult.ListByDate) {
-        swipeLayout.setRefreshingAndWaitingResult(false)
+        binding.swipeContainer.setRefreshingAndWaitingResult(false)
         when (result.command.status) {
             Status.SUCCESS -> {
                 result.command.data?.also { birthdays ->

@@ -44,7 +44,7 @@
             android:visibility="visible"/>
 
         <ImageView
-            android:id="@+id/ic_show_image_action"
+            android:id="@+id/show_image"
             android:layout_width="30dp"
             android:layout_height="30dp"
             android:layout_alignParentBottom="true"
